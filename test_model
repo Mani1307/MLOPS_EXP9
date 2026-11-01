@@ -1,1 +1,52 @@
 
+
+import os
+import joblib
+import pandas as pd
+
+from sklearn.metrics import accuracy_score
+
+# Check whether model exists
+model_path = "model/diabetes_model.pkl"
+
+if not os.path.exists(model_path):
+    raise FileNotFoundError(
+        "Model not found. Run train.py first."
+    )
+
+# Load trained model
+model = joblib.load(model_path)
+
+print("Model loaded successfully!")
+
+# Load dataset
+df = pd.read_csv("diabetes_prediction_dataset.csv")
+
+# Remove duplicates
+df = df.drop_duplicates()
+
+# Separate features and target
+X = df.drop("diabetes", axis=1)
+y = df["diabetes"]
+
+# Test model prediction
+predictions = model.predict(X.head(10))
+
+print("\nSample Predictions:")
+print(predictions)
+
+# Check prediction count
+assert len(predictions) == 10, "Prediction count mismatch!"
+
+# Check valid output classes
+assert set(predictions).issubset({0, 1}), "Invalid prediction values!"
+
+# Evaluate on the dataset
+all_predictions = model.predict(X)
+accuracy = accuracy_score(y, all_predictions)
+
+print("\nModel Testing Successful!")
+print("Prediction count:", len(predictions))
+print("Dataset accuracy:", accuracy)
+
+print("\nAll tests passed!")
